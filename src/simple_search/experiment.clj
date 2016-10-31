@@ -60,13 +60,20 @@
   where you replace 30 and 1000 with the desired number of repetitions
   and maximum answers.
   "
-  [num-repetitions max-answers]
+
+
+
+
+  [num-repetitions max-answers num-restarts]
   ; This is necessary to "move" us into this namespace. Otherwise we'll
   ; be in the "user" namespace, and the references to the problems won't
   ; resolve propertly.
   (ns simple-search.experiment)
   (print-experimental-results
    (run-experiment [(with-meta
+                      (partial core/hill-climber core/mutate-answer core/penalized-score (Integer/parseInt num-restarts))
+                      {:label "hcrr_penalized_score"})
+                     (with-meta
                       (partial core/hill-climber core/mutate-answer core/score)
                       {:label "hill_climber_cliff_score"})
                     (with-meta
@@ -78,6 +85,7 @@
                         ["knapPI_11_20_1000_4" "knapPI_13_20_1000_4" "knapPI_16_20_1000_4"
                          "knapPI_11_200_1000_4" "knapPI_13_200_1000_4" "knapPI_16_200_1000_4"])
                    (Integer/parseInt num-repetitions)
-                   (Integer/parseInt max-answers)))
+                   (Integer/parseInt max-answers)
+                   (Integer/parseInt num-restarts)))
   (shutdown-agents))
 

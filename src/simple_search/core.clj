@@ -28,7 +28,7 @@
   (let [included (included-items (:items instance) choices)]
     (->Answer instance choices
               (reduce + (map :weight included))
-              (reduce + (map :value included)))))
+              (reduce + (map :value included 10000 100)))))
 
 (defn random-answer
   "Construct a random answer for the given instance of the
@@ -120,6 +120,11 @@
                (:score current-best))
           (recur new-answer (inc num-tries))
           (recur current-best (inc num-tries)))))))
+
+(let [max-restarts (/ max-tries num-restarts)]
+
+(max-key :score (repeatedly max-restarts
+                 (fn [_] (hill-climber mutate-answer penalized-score knapPI_16_200_1000_1 max-tries num-restarts)))))
 
 ; (time (random-search score knapPI_16_200_1000_1 100000
 ; ))
