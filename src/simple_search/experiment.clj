@@ -35,6 +35,7 @@
              (:label (:problem result))
              (:max-evals result)
              (:run-number result)
+              ;@(:answer result))))
              (long (:score @(:answer result))))))
 
 ;; This really shouldn't be necessary, as I should have included the labels
@@ -58,12 +59,7 @@
   lein run -m simple-search.experiment 30 1000
 
   where you replace 30 and 1000 with the desired number of repetitions
-  and maximum answers.
-  "
-
-
-
-
+  and maximum answers.  "
   [num-repetitions max-answers num-restarts]
   ; This is necessary to "move" us into this namespace. Otherwise we'll
   ; be in the "user" namespace, and the references to the problems won't
@@ -71,7 +67,7 @@
   (ns simple-search.experiment)
   (print-experimental-results
    (run-experiment [(with-meta
-                      (partial core/hill-climber core/mutate-answer core/penalized-score (Integer/parseInt num-restarts))
+                      (partial core/hill-climber-restarts core/mutate-answer core/penalized-score (Integer/parseInt num-restarts))
                       {:label "hcrr_penalized_score"})
                      (with-meta
                       (partial core/hill-climber core/mutate-answer core/score)
@@ -86,6 +82,6 @@
                          "knapPI_11_200_1000_4" "knapPI_13_200_1000_4" "knapPI_16_200_1000_4"])
                    (Integer/parseInt num-repetitions)
                    (Integer/parseInt max-answers)
-                   (Integer/parseInt num-restarts)))
+                   ))
   (shutdown-agents))
 

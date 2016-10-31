@@ -121,10 +121,27 @@
           (recur new-answer (inc num-tries))
           (recur current-best (inc num-tries)))))))
 
-(let [max-restarts (/ max-tries num-restarts)]
 
-(max-key :score (repeatedly max-restarts
-                 (fn [_] (hill-climber mutate-answer penalized-score knapPI_16_200_1000_1 max-tries num-restarts)))))
+(defn hill-climber-restarts
+
+
+  ([] (println "FOOBAR 2000"))
+
+
+  ([mutator scorer num-restarts instance max-tries]
+  (let [max-restarts (/ max-tries num-restarts)
+
+        args (println "+++++\n" mutator "\n" num-restarts "\n INSTANCE WOULD BE HERE" "\n" max-tries)
+
+        ]
+
+     (max-key :score (repeatedly max-restarts
+                 (fn [] (hill-climber mutate-answer
+                                      penalized-score
+                                      knapPI_16_200_1000_1
+                                      num-restarts)))))))
+
+
 
 ; (time (random-search score knapPI_16_200_1000_1 100000
 ; ))
@@ -132,5 +149,5 @@
 ; (time (hill-climber mutate-answer score knapPI_16_200_1000_1 100000
 ; ))
 
-; (time (hill-climber mutate-answer penalized-score knapPI_16_200_1000_1 100000
-; ))
+;;  (time (hill-climber-restarts mutate-answer penalized-score 5 knapPI_16_200_1000_1 100000
+;;  ))
