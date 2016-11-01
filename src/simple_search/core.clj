@@ -28,7 +28,7 @@
   (let [included (included-items (:items instance) choices)]
     (->Answer instance choices
               (reduce + (map :weight included))
-              (reduce + (map :value included 10000 100)))))
+              (reduce + (map :value included)))))
 
 (defn random-answer
   "Construct a random answer for the given instance of the
@@ -123,23 +123,14 @@
 
 
 (defn hill-climber-restarts
-
-
-  ([] (println "FOOBAR 2000"))
-
-
-  ([mutator scorer num-restarts instance max-tries]
-  (let [max-restarts (/ max-tries num-restarts)
-
-        args (println "+++++\n" mutator "\n" num-restarts "\n INSTANCE WOULD BE HERE" "\n" max-tries)
-
-        ]
-
-     (max-key :score (repeatedly max-restarts
-                 (fn [] (hill-climber mutate-answer
-                                      penalized-score
-                                      knapPI_16_200_1000_1
-                                      num-restarts)))))))
+   [mutator scorer num-restarts instance max-tries]
+   (let [restart-evals (/ max-tries num-restarts)]
+   (let [answers (repeatedly num-restarts
+                 (fn [] (hill-climber mutator
+                                      scorer
+                                      instance
+                                      restart-evals)))]
+        (apply max-key :score answers))))
 
 
 

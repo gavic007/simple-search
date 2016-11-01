@@ -15,11 +15,11 @@
         n (range num-replications)]
     ; The `nil` here sets the answer to initially be nil so we can
     ; tell if it's been evaluated or not.
-    (let [answer (agent nil)]
+    (let [answer (atom nil)]
       ; The `send` says to evaluate `(searcher p max-evals)` in another
       ; thread when convenient, and replace the old value of the answer
       ; (marked by the placeholder argument `_`) with that new value.
-      (send answer (fn [_] (searcher p max-evals)))
+      (swap! answer (fn [_] (searcher p max-evals)))
       {:searcher searcher
        :problem p
        :max-evals max-evals
@@ -29,8 +29,8 @@
 (defn print-experimental-results
   [results]
   (doseq [result results]
-    (when (nil? @(:answer result))
-      (await (:answer result)))
+    ;(when (nil? @(:answer result))
+     ; (await (:answer result)))
     (println (:label (meta (:searcher result)))
              (:label (:problem result))
              (:max-evals result)
