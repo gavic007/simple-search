@@ -9,7 +9,7 @@
 
 (defn run-experiment
   [searchers problems num-replications max-evals]
-  (println "Search_method Problem Max_evals Run Score")
+  (println "Search_method Problem Max_evals Num_restarts Run Score")
   (for [searcher searchers
         p problems
         n (range num-replications)]
@@ -27,15 +27,15 @@
        :answer answer})))
 
 (defn print-experimental-results
-  [results]
+  [results num-restarts]
   (doseq [result results]
     ;(when (nil? @(:answer result))
-     ; (await (:answer result)))
+    ; (await (:answer result)))
     (println (:label (meta (:searcher result)))
              (:label (:problem result))
              (:max-evals result)
+             num-restarts
              (:run-number result)
-              ;@(:answer result))))
              (long (:score @(:answer result))))))
 
 ;; This really shouldn't be necessary, as I should have included the labels
@@ -44,8 +44,8 @@
 ;; new set of problem files to all your projects.
 (defn get-labelled-problem
   "Takes the name of a problem (as a string) and returns the actual
-   problem instance (as a map) with the name added to the map under
-   the :label key."
+  problem instance (as a map) with the name added to the map under
+  the :label key."
   [problem-name]
   (let [problem (var-get (resolve (symbol problem-name)))]
     (assoc problem :label problem-name)))
@@ -66,22 +66,23 @@
   ; resolve propertly.
   (ns simple-search.experiment)
   (print-experimental-results
-   (run-experiment [(with-meta
-                      (partial core/hill-climber-restarts core/mutate-answer core/penalized-score (Integer/parseInt num-restarts))
-                      {:label "hcrr_penalized_score"})
+    (run-experiment [(with-meta
+                       (partial core/hill-climber-restarts core/mutate-answer core/penalized-score (Integer/parseInt num-restarts))
+                       {:label "hcrr_penalized_score"})
                      (with-meta
-                      (partial core/hill-climber core/mutate-answer core/score)
-                      {:label "hill_climber_cliff_score"})
-                    (with-meta
-                      (partial core/hill-climber core/mutate-answer core/penalized-score)
-                      {:label "hill_climber_penalized_score"})
-                    (with-meta (partial core/random-search core/score)
-                      {:label "random_search"})]
-                   (map get-labelled-problem
-                        ["knapPI_11_20_1000_4" "knapPI_13_20_1000_4" "knapPI_16_20_1000_4"
-                         "knapPI_11_200_1000_4" "knapPI_13_200_1000_4" "knapPI_16_200_1000_4"])
-                   (Integer/parseInt num-repetitions)
-                   (Integer/parseInt max-answers)
-                   ))
+                       (partial core/hill-climber core/mutate-answer core/score)
+                       {:label "hill_climber_cliff_score"})
+                     (with-meta
+                       (partial core/hill-climber core/mutate-answer core/penalized-score)
+                       {:label "hill_climber_penalized_score"})
+                     (with-meta (partial core/random-search core/score)
+                       {:label "random_search"})]
+                    (map get-labelled-problem
+                         ["knapPI_11_20_1000_4" "knapPI_13_20_1000_4" "knapPI_16_20_1000_4"
+                          "knapPI_11_200_1000_4" "knapPI_13_200_1000_4" "knapPI_16_200_1000_4"])
+                    (Integer/parseInt num-repetitions)
+                    (Integer/parseInt max-answers)
+                    )
+    (Integer/parseInt num-restarts))
   (shutdown-agents))
 
