@@ -48,16 +48,16 @@ $$3 \times 2 \times 6 \times 50 = 1800 \textrm{ runs}$$
 As we can see in the plot below, the hill-climber with penalized fitness (`HC_penalty`) sometimes returns negative scores, i.e., it doesn't always manage to "climb" out of the realm of illegal solutions with the given maximum number of tries.
 
 ```{r}
-data_5_runs <- read.csv("../data/data_5_runs_combined.txt", sep="")
+data_10_runs <- read.csv("../data/data_10_runs.txt", sep="")
 
-plot(data_5_runs$Score ~ data_5_runs$Search_method,
+plot(data_10_runs$Score ~ data_10_runs$Search_method,
      xlab="Searcher", ylab="Score")
 ```
 
 A quick check confirms that (a) there aren't too many such runs (28 in total) and (b) that all of them are on the 200 item problems.
 
 ```{r}
-negs <- subset(data_5_runs, Score<0)
+negs <- subset(data_10_runs, Score<0)
 nrow(negs)
 unique(negs$Problem)
 ```
@@ -65,9 +65,9 @@ unique(negs$Problem)
 Since we don't really care _how_ illegal our final solutions are, I made a new column (`Non_negative_score`) that has negative scores converted to zeros. This gives us a plot that is arguably a more "sensible" comparison than the one with the negative values.
 
 ```{r}
-data_5_runs$Non_negative_score = ifelse(data_5_runs$Score<0, 0, data_5_runs$Score)
+data_10_runs$Non_negative_score = ifelse(data_10_runs$Score<0, 0, data_10_runs$Score)
 
-plot(data_5_runs$Non_negative_score ~ data_5_runs$Search_method,
+plot(data_10_runs$Non_negative_score ~ data_10_runs$Search_method,
      xlab="Searcher", ylab="Score")
 ```
 
@@ -76,7 +76,7 @@ Here it looks like the leftmost method (`HC_penalty`) is clearly better than the
 So let's run a pairwise Wilcoxon test:
 
 ```{r}
-pairwise.wilcox.test(data_5_runs$Non_negative_score, data_5_runs$Search_method)
+pairwise.wilcox.test(data_10_runs$Non_negative_score, data_10_runs$Search_method)
 ```
 
 All the differences are strongly significant, with $p<2^{-16}$ in each case. Note, however, that while `Random` is better than `HC_zero`, the median is about the same for the two, so we wouldn't expect _huge_ differences between then. Certainly the improvements in performance that we see with `HC_penalty` are much more interesting.
@@ -86,7 +86,7 @@ All the differences are strongly significant, with $p<2^{-16}$ in each case. Not
 We saw earlier that there was some difference between the 20 and 200 item problems, because all the negative final results from `HC_penalty` were on 200 item problems. This plot shows the performance on all six problems, regardless of search method used:
 
 ```{r}
-plot(data_5_runs$Non_negative_score ~ data_5_runs$Problem,
+plot(data_10_runs$Non_negative_score ~ data_10_runs$Problem,
      xlab="Searcher", ylab="Score")
 ```
 
@@ -97,7 +97,7 @@ The following plot shows the performance broken out by essentially _all_ our ind
 ```{r warning=FALSE}
 library("ggplot2")
 
-ggplot(data_5_runs, 
+ggplot(data_10_runs, 
        aes(x=factor(Max_evals), y=Non_negative_score, group=Max_evals)) + 
   geom_boxplot() + facet_grid(Search_method ~ Problem)
 ```
@@ -114,7 +114,7 @@ The results in the previous plot separating things by problem, searcher, and `ma
 library("rpart")
 library("rpart.plot")
 
-rp <- rpart(Non_negative_score ~ Search_method + Problem + Max_evals, data=data_5_runs)
+rp <- rpart(Non_negative_score ~ Search_method + Problem + Max_evals, data=data_10_runs)
 rp
 
 rpart.plot(rp, type=3, extra=100)
